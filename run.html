@@ -1,0 +1,132 @@
+ <!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Echo Runner (Lite)</title>
+<style>
+  body { margin:0; background:#000; display:flex; justify-content:center; align-items:center; height:100vh; }
+  canvas { background:#111; border:2px solid #0ff; }
+</style>
+</head>
+<body>
+<canvas id="game" width="600" height="400"></canvas>
+<script>
+const canvas=document.getElementById("game"),ctx=canvas.getContext("2d");
+const keys={}; document.addEventListener("keydown",e=>keys[e.key]=true);
+document.addEventListener("keyup",e=>keys[e.key]=false);
+
+let player={x:300,y:200,s:10,speed:2};
+let ghosts=[],recording=[],time=0;
+
+function update(){
+  // movement
+  if(keys["ArrowUp"]||keys["w"]) player.y-=player.speed;
+  if(keys["ArrowDown"]||keys["s"]) player.y+=player.speed;
+  if(keys["ArrowLeft"]||keys["a"]) player.x-=player.speed;
+  if(keys["ArrowRight"]||keys["d"]) player.x+=player.speed;
+
+  // record actions
+  recording.push({x:player.x,y:player.y});
+  if(recording.length>600){
+    ghosts.push({path:recording.slice(0),i:0});
+    recording=[];
+  }
+
+  // update ghosts
+  ghosts.forEach(g=>{ if(g.i<g.path.length-1) g.i++; });
+
+  // collision check
+  ghosts.forEach(g=>{
+    let pos=g.path[g.i];
+    if(pos && Math.hypot(pos.x-player.x,pos.y-player.y)<player.s) reset();
+  });
+}
+
+function draw(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle="blue"; ctx.beginPath(); ctx.arc(player.x,player.y,player.s,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle="green";
+  ghosts.forEach(g=>{let pos=g.path[g.i]; if(pos) ctx.fillRect(pos.x-5,pos.y-5,10,10);});
+}
+
+function loop(){ update(); draw(); requestAnimationFrame(loop); }
+function reset(){ player.x=300; player.y=200; ghosts=[]; recording=[]; }
+loop();
+</script>
+</body>
+</html>  -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Echo Runner (Lite) with Login</title>
+<style>
+  body { margin:0; background:#000; display:flex; justify-content:center; align-items:center; height:100vh; flex-direction:column; }
+  #loginBox { background:#111; padding:20px; border:2px solid #0ff; border-radius:8px; color:#0ff; }
+  #game { display:none; background:#111; border:2px solid #0ff; }
+</style>
+</head>
+<body>
+<div id="loginBox">
+  <h2>Login to Play</h2>
+  <input type="text" id="username" placeholder="Username"><br><br>
+  <input type="password" id="password" placeholder="Password"><br><br>
+  <button onclick="login()">Login</button>
+  <p id="msg" style="color:red;"></p>
+</div>
+
+<canvas id="game" width="600" height="400"></canvas>
+
+<script>
+const canvas=document.getElementById("game"),ctx=canvas.getContext("2d");
+const keys={}; document.addEventListener("keydown",e=>keys[e.key]=true);
+document.addEventListener("keyup",e=>keys[e.key]=false);
+
+let player={x:300,y:200,s:10,speed:2};
+let ghosts=[],recording=[];
+
+function login(){
+  let user=document.getElementById("username").value;
+  let pass=document.getElementById("password").value;
+
+  // simple hardcoded credentials
+  if(user==="player" && pass==="1234"){
+    document.getElementById("loginBox").style.display="none";
+    canvas.style.display="block";
+    loop();
+  } else {
+    document.getElementById("msg").textContent="Invalid username or password!";
+  }
+}
+
+function update(){
+  if(keys["ArrowUp"]||keys["w"]) player.y-=player.speed;
+  if(keys["ArrowDown"]||keys["s"]) player.y+=player.speed;
+  if(keys["ArrowLeft"]||keys["a"]) player.x-=player.speed;
+  if(keys["ArrowRight"]||keys["d"]) player.x+=player.speed;
+
+  recording.push({x:player.x,y:player.y});
+  if(recording.length>600){
+    ghosts.push({path:recording.slice(0),i:0});
+    recording=[];
+  }
+  ghosts.forEach(g=>{ if(g.i<g.path.length-1) g.i++; });
+
+  ghosts.forEach(g=>{
+    let pos=g.path[g.i];
+    if(pos && Math.hypot(pos.x-player.x,pos.y-player.y)<player.s) reset();
+  });
+}
+
+function draw(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle="#0f0"; ctx.beginPath(); ctx.arc(player.x,player.y,player.s,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle="rgba(255,0,0,0.5)";
+  ghosts.forEach(g=>{let pos=g.path[g.i]; if(pos) ctx.fillRect(pos.x-5,pos.y-5,10,10);});
+}
+
+function loop(){ update(); draw(); requestAnimationFrame(loop); }
+function reset(){ player.x=300; player.y=200; ghosts=[]; recording=[]; }
+</script>
+</body>
+</html>
